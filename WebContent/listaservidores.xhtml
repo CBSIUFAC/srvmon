@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>Lista de Servidores</title>
+</h:head>
+
+<ui:composition template="/template/principal.xhtml">
+	<ui:define name="content">
+		<h:body>
+		<h:form>
+				<p:commandButton id="btnAddServidor" value="Inserir Servidor" action="#{servidorBean.prepararServidor}"
+					onclick="PF('dlgCadServidor').show()" update=":formCadServidor:desc"
+					process="@this">
+					<p:resetInput target=":formCadServidor:desc" />
+				</p:commandButton>
+		</h:form>
+			<h:form id="formCadServidor">
+				<p:dialog widgetVar="dlgCadServidor" modal="true">
+					<p:outputLabel value="Endereço:"></p:outputLabel>
+					<p:inputText id="desc" value="#{servidorBean.servidor.address}"></p:inputText>
+					<p:commandButton value="Inserir Servidor" update=":formListaServidor:tabelaServidor"
+						action="#{servidorBean.inserirServidor}" oncomplete="PF('dlgCadServidor').hide()"></p:commandButton>
+				</p:dialog>
+			</h:form>
+
+			<h:form id="formListaServidor">
+				<p:growl id="msg" showDetail="true"></p:growl>
+				<p:dataTable id="tabelaServidor" var="m" value="#{servidorBean.listaServidores}" rows="10"
+					editable="true" paginator="true"
+					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					rowsPerPageTemplate="10,50,100" filteredValue="#{servidorBean.filtroLista}">
+					<p:ajax event="rowEdit" listener="#{servidorBean.atualizarServidor}"></p:ajax>
+					<p:ajax event="rowEditCancel" listener="#{servidorBean.cancelarServidor}"
+						update=":formListaServidor:msg"></p:ajax>
+					<p:column headerText="IdServidor">
+						<p:outputLabel value="#{m.idServidor}"></p:outputLabel>
+					</p:column>
+
+					<p:column headerText="Endereço" filterBy="#{m.address}" filterMatchMode="contains">
+						<p:cellEditor>
+							<f:facet name="output">
+								<p:outputLabel value="#{m.address}"></p:outputLabel>
+							</f:facet>
+							<f:facet name="input">
+								<p:inputText value="#{m.address}"></p:inputText>
+							</f:facet>
+						</p:cellEditor>
+					</p:column>
+					
+					<p:column headerText="Último Update">
+						<p:outputLabel value="#{m.lastReport.timeString}"></p:outputLabel>
+					</p:column>
+					
+					<p:column headerText="Resultado">
+						<p:outputLabel value="#{m.lastReport.playersString}"></p:outputLabel>
+					</p:column>
+
+					<p:column headerText="Editar">
+						<p:rowEditor></p:rowEditor>
+					</p:column>
+
+					<p:column headerText="Deletar">
+						<h:commandLink action="#{servidorBean.deletarServidor}">
+							<p:graphicImage value="/imagens/update.png" style="border:0"></p:graphicImage>
+							<f:setPropertyActionListener value="#{m}"
+								target="#{servidorBean.servidor}"></f:setPropertyActionListener>
+						</h:commandLink>
+					</p:column>
+					
+					<p:column headerText="Atualizar">
+						<h:commandLink action="#{servidorReportBean.inserirServidorReport}">
+							<p:graphicImage value="/imagens/update.png" style="border:0"></p:graphicImage>
+							<f:setPropertyActionListener value="#{m}"
+								target="#{servidorReportBean.servidorReport.servidor}"></f:setPropertyActionListener>
+						</h:commandLink>
+					</p:column>
+				</p:dataTable>
+			</h:form>
+		</h:body>
+	</ui:define>
+</ui:composition>
+
+</html>
